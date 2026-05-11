@@ -24,55 +24,58 @@ body {
     transform: translate3d(0, 0, 0);
 }
 
-@keyframes galaxyFlow {
-    0%, 100% { opacity: 0; }
-}
-
-/* Nebulosa animada superior - DESHABILITADA */
+/* Estrellas de fondo lejano */
 .universe-background::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: none;
-    animation: none;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(1px 1px at 10% 20%, white, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 15% 80%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 20% 50%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 25% 10%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 30% 70%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 40% 40%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 50% 20%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 60% 60%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 70% 30%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 80% 70%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 90% 40%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 85% 15%, #fff, rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 95% 80%, #fff, rgba(255,255,255,0));
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
     pointer-events: none;
     z-index: 1;
-    display: none;
 }
 
-@keyframes nebulaRotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* Nebulosa animada inferior - DESHABILITADA */
+/* Galaxia principal girando */
 .universe-background::after {
     content: '';
     position: absolute;
-    bottom: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: none;
-    animation: none;
+    width: 600px;
+    height: 600px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at 30% 40%, rgba(100, 200, 255, 0.6) 0%, rgba(80, 150, 255, 0.3) 15%, transparent 40%),
+                radial-gradient(ellipse at 40% 50%, rgba(200, 100, 255, 0.4) 0%, transparent 30%),
+                radial-gradient(ellipse at 50% 50%, rgba(100, 100, 200, 0.2) 0%, transparent 50%);
+    border-radius: 50%;
+    filter: blur(80px) brightness(1.2);
+    animation: galaxyRotate 120s linear infinite;
     pointer-events: none;
-    z-index: 1;
-    display: none;
+    z-index: 2;
+    box-shadow: 0 0 200px rgba(100, 150, 255, 0.4), 0 0 400px rgba(150, 80, 255, 0.2);
 }
 
-@keyframes nebulaRotateReverse {
+@keyframes galaxyRotate {
     0% {
-        transform: rotate(0deg);
+        transform: translate(-50%, -50%) rotate(0deg);
     }
     100% {
-        transform: rotate(-360deg);
+        transform: translate(-50%, -50%) rotate(360deg);
     }
 }
 
@@ -83,7 +86,7 @@ body {
     top: 0;
     left: 0;
     will-change: contents;
-    z-index: 2;
+    z-index: 3;
 }
 
 /* Estrellas estáticas de fondo optimizadas - OCULTAS */
@@ -454,4 +457,138 @@ body {
 @keyframes orbit3 {
     0% { transform: translate(-50%, -50%) rotate(0deg) translateX(80px); }
     100% { transform: translate(-50%, -50%) rotate(360deg) translateX(80px); }
+}
+
+/* Capas adicionales de galaxia para profundidad */
+.content::before {
+    content: '';
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at 35% 45%, rgba(150, 80, 200, 0.3) 0%, transparent 35%),
+                radial-gradient(ellipse at 45% 55%, rgba(100, 150, 255, 0.25) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(200, 100, 150, 0.15) 0%, transparent 50%);
+    border-radius: 50%;
+    filter: blur(100px) brightness(1.1);
+    animation: galaxyPulse 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes galaxyPulse {
+    0%, 100% {
+        filter: blur(100px) brightness(1);
+    }
+    50% {
+        filter: blur(100px) brightness(1.3);
+    }
+}
+
+/* Halo externo de la galaxia */
+.content::after {
+    content: '';
+    position: fixed;
+    width: 1000px;
+    height: 1000px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(100, 200, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(150px);
+    pointer-events: none;
+    z-index: -1;
+    animation: haloGlow 6s ease-in-out infinite;
+}
+
+@keyframes haloGlow {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Estrellas luminosas adicionales que orbitan */
+.title::before {
+    content: '⭐';
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6)) drop-shadow(0 0 40px rgba(100, 200, 255, 0.3));
+    animation: starOrbit1 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes starOrbit1 {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) translateX(200px) rotateZ(-360deg);
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg) translateX(200px) rotateZ(0deg);
+        opacity: 0.3;
+    }
+}
+
+.title::after {
+    content: '💫';
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 15px rgba(255, 0, 200, 0.5)) drop-shadow(0 0 30px rgba(200, 100, 255, 0.3));
+    animation: starOrbit2 25s linear infinite reverse;
+    pointer-events: none;
+}
+
+@keyframes starOrbit2 {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) translateX(250px) rotateZ(-360deg);
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg) translateX(250px) rotateZ(0deg);
+        opacity: 0.4;
+    }
+}
+
+/* Optimización para móvil */
+@media (max-width: 768px) {
+    .universe-background::after {
+        width: 400px;
+        height: 400px;
+        animation: galaxyRotate 120s linear infinite;
+        box-shadow: 0 0 100px rgba(100, 150, 255, 0.3), 0 0 200px rgba(150, 80, 255, 0.15);
+    }
+    
+    .content::before {
+        width: 500px;
+        height: 500px;
+        filter: blur(80px) brightness(1.05);
+    }
+    
+    .content::after {
+        width: 600px;
+        height: 600px;
+        filter: blur(100px);
+    }
+    
+    .title::before,
+    .title::after {
+        display: none;
+    }
 }
