@@ -160,8 +160,68 @@ function startFullCounter() {
     setInterval(updateFullCounter, 1000); // Actualizar cada segundo
 }
 
+// Sistema de Audio Web API
+let audioContext = null;
+
+function initAudioContext() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioContext;
+}
+
+// Función para reproducir un sonido con frecuencia específica
+function playStarSound(frequency) {
+    const context = initAudioContext();
+    const now = context.currentTime;
+    
+    // Crear oscilador
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    
+    // Configurar sonido
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    
+    // Envelope ADSR simplificado
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    
+    // Reproducir sonido
+    oscillator.start(now);
+    oscillator.stop(now + 0.5);
+}
+
+// Event listeners para las estrellas
+function initializeStars() {
+    const stars = document.querySelectorAll('.star');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const frequency = parseFloat(this.getAttribute('data-note'));
+            playStarSound(frequency);
+            
+            // Agregar efecto visual
+            this.style.animation = 'none';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 10);
+        });
+        
+        star.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const frequency = parseFloat(this.getAttribute('data-note'));
+            playStarSound(frequency);
+        });
+    });
+}
+
 // Iniciar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     startShootingStars();
     startFullCounter();
+    initializeStars();
 });
