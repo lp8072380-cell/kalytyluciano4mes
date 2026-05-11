@@ -1,58 +1,13 @@
-// Función para crear estrellas fugaces animadas
-function createShootingStar() {
-    const starsContainer = document.querySelector('.stars-container');
-    
-    const shootingStar = document.createElement('div');
-    shootingStar.classList.add('shooting-star');
-    
-    // Posición inicial aleatoria en la parte superior
-    const startX = Math.random() * window.innerWidth;
-    const startY = Math.random() * (window.innerHeight * 0.5);
-    
-    // Ángulo aleatorio para la dirección (hacia abajo y a la derecha)
-    const angle = 45 + Math.random() * 40; // Entre 45 y 85 grados
-    
-    shootingStar.style.left = startX + 'px';
-    shootingStar.style.top = startY + 'px';
-    
-    starsContainer.appendChild(shootingStar);
-    
-    // Crear animación de movimiento
-    const duration = 2 + Math.random() * 1; // Entre 2 y 3 segundos
-    const distance = 300 + Math.random() * 200; // Distancia que viajará
-    
-    const radians = (angle * Math.PI) / 180;
-    const endX = startX + distance * Math.cos(radians);
-    const endY = startY + distance * Math.sin(radians);
-    
-    let startTime = Date.now();
-    
-    function animate() {
-        const elapsed = Date.now() - startTime;
-        const progress = elapsed / (duration * 1000);
-        
-        if (progress >= 1) {
-            shootingStar.remove();
-            return;
-        }
-        
-        const currentX = startX + (endX - startX) * progress;
-        const currentY = startY + (endY - startY) * progress;
-        
-        // Reducir opacidad hacia el final
-        const opacity = 1 - (progress * 0.5);
-        
-        shootingStar.style.left = currentX + 'px';
-        shootingStar.style.top = currentY + 'px';
-        shootingStar.style.opacity = opacity;
-        
-        requestAnimationFrame(animate);
-    }
-    
-    animate();
-}
+// Sistema optimizado de estrellas fugaces
+let shootingStarCount = 0;
+const maxShootingStars = 3; // Máximo de estrellas en pantalla simultáneamente
 
 function createShootingStarWithTrail() {
+    // Limitar cantidad de estrellas
+    if (shootingStarCount >= maxShootingStars) {
+        return;
+    }
+    
     const starsContainer = document.querySelector('.stars-container');
     
     const shootingStar = document.createElement('div');
@@ -64,22 +19,19 @@ function createShootingStarWithTrail() {
     
     // Ángulo para trayectoria diagonal
     const angle = 30 + Math.random() * 60;
-    const speed = 3 + Math.random() * 4;
-    
-    let x = startX;
-    let y = startY;
-    
-    shootingStar.style.left = x + 'px';
-    shootingStar.style.top = y + 'px';
+    const speed = 4 + Math.random() * 3;
     
     starsContainer.appendChild(shootingStar);
+    shootingStarCount++;
     
     const radians = (angle * Math.PI) / 180;
     const velocityX = speed * Math.cos(radians);
     const velocityY = speed * Math.sin(radians);
     
+    let x = startX;
+    let y = startY;
     let frameCount = 0;
-    const maxFrames = 200;
+    const maxFrames = 150;
     
     function animate() {
         frameCount++;
@@ -89,13 +41,13 @@ function createShootingStarWithTrail() {
         
         if (frameCount >= maxFrames || x < -50 || x > window.innerWidth + 50 || y > window.innerHeight + 50) {
             shootingStar.remove();
+            shootingStarCount--;
             return;
         }
         
-        // Reducir opacidad progresivamente
+        // Usar transform para mejor rendimiento
         const opacity = 1 - (frameCount / maxFrames);
-        shootingStar.style.left = x + 'px';
-        shootingStar.style.top = y + 'px';
+        shootingStar.style.transform = `translate(${x}px, ${y}px)`;
         shootingStar.style.opacity = opacity;
         
         requestAnimationFrame(animate);
@@ -104,26 +56,20 @@ function createShootingStarWithTrail() {
     animate();
 }
 
-// Generar estrellas fugaces periódicamente
 function startShootingStars() {
     // Primera lluvia de estrellas al cargar
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
         setTimeout(() => {
             createShootingStarWithTrail();
         }, i * 300);
     }
     
-    // Generar estrellas fugaces cada 1-2 segundos
+    // Generar estrellas fugaces de manera más espaciada
     setInterval(() => {
-        if (Math.random() > 0.4) {
+        if (Math.random() > 0.3 && shootingStarCount < maxShootingStars) {
             createShootingStarWithTrail();
         }
-        
-        // Ocasionalmente generar múltiples estrellas
-        if (Math.random() > 0.8) {
-            setTimeout(() => createShootingStarWithTrail(), 200);
-        }
-    }, 1500 + Math.random() * 1500);
+    }, 2000 + Math.random() * 2000); // Cada 2-4 segundos
 }
 
 // Función para calcular el tiempo transcurrido completo
@@ -160,8 +106,9 @@ function startFullCounter() {
     setInterval(updateFullCounter, 1000); // Actualizar cada segundo
 }
 
-// Sistema de Audio Web API
+// Sistema de Audio Web API optimizado
 let audioContext = null;
+const oscillators = [];
 
 function initAudioContext() {
     if (!audioContext) {
@@ -172,27 +119,31 @@ function initAudioContext() {
 
 // Función para reproducir un sonido con frecuencia específica
 function playStarSound(frequency) {
-    const context = initAudioContext();
-    const now = context.currentTime;
-    
-    // Crear oscilador
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    
-    // Configurar sonido
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'sine';
-    
-    // Envelope ADSR simplificado
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-    
-    // Reproducir sonido
-    oscillator.start(now);
-    oscillator.stop(now + 0.5);
+    try {
+        const context = initAudioContext();
+        const now = context.currentTime;
+        
+        // Crear oscilador
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        
+        // Configurar sonido
+        oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+        
+        // Envelope ADSR simplificado
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        
+        // Reproducir sonido
+        oscillator.start(now);
+        oscillator.stop(now + 0.4);
+    } catch (e) {
+        console.error('Error reproduciendo sonido:', e);
+    }
 }
 
 // Event listeners para las estrellas
@@ -203,12 +154,6 @@ function initializeStars() {
         star.addEventListener('click', function() {
             const frequency = parseFloat(this.getAttribute('data-note'));
             playStarSound(frequency);
-            
-            // Agregar efecto visual
-            this.style.animation = 'none';
-            setTimeout(() => {
-                this.style.animation = '';
-            }, 10);
         });
         
         star.addEventListener('touchstart', function(e) {
