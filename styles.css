@@ -14,14 +14,11 @@ body {
 .universe-background {
     width: 100%;
     height: 100vh;
-    background: linear-gradient(
-        135deg,
-        #0a0e27 0%,
-        #1a1a4d 25%,
-        #0f3460 50%,
-        #16213e 75%,
-        #0a0e27 100%
-    );
+    background: radial-gradient(ellipse at 30% 50%, rgba(100, 50, 150, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(50, 100, 200, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 30%, rgba(150, 80, 200, 0.2) 0%, transparent 40%),
+                linear-gradient(135deg, #0a0e27 0%, #1a1a4d 20%, #0f3460 50%, #16213e 80%, #0a0e27 100%);
+    background-attachment: fixed;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -29,6 +26,62 @@ body {
     justify-content: center;
     will-change: auto;
     transform: translate3d(0, 0, 0);
+    animation: galaxyFlow 40s linear infinite;
+}
+
+@keyframes galaxyFlow {
+    0% {
+        background-position: 0% 0%, 0% 0%, 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%, 100% 100%, 100% 100%;
+    }
+}
+
+/* Nebulosa animada superior */
+.universe-background::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(200, 100, 255, 0.15), transparent 70%);
+    animation: nebulaRotate 60s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes nebulaRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Nebulosa animada inferior */
+.universe-background::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(0, 150, 255, 0.1), transparent 70%);
+    animation: nebulaRotateReverse 80s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes nebulaRotateReverse {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(-360deg);
+    }
 }
 
 .stars-container {
@@ -38,9 +91,10 @@ body {
     top: 0;
     left: 0;
     will-change: contents;
+    z-index: 2;
 }
 
-/* Estrellas estáticas de fondo */
+/* Estrellas estáticas de fondo optimizadas */
 .stars-container::before,
 .stars-container::after {
     content: '';
@@ -364,4 +418,52 @@ body {
     .hours-counter {
         backdrop-filter: blur(5px);
     }
+}
+
+/* Optimización para móvil - reducir animaciones de galaxia */
+@media (max-width: 768px) {
+    @keyframes galaxyFlow {
+        0% {
+            background-position: 0% 0%, 0% 0%, 0% 0%;
+        }
+        100% {
+            background-position: 30% 30%, 30% 30%, 30% 30%;
+        }
+    }
+    
+    .universe-background::before {
+        animation: nebulaRotate 100s linear infinite;
+    }
+    
+    .universe-background::after {
+        animation: nebulaRotateReverse 120s linear infinite;
+    }
+}
+
+@media (max-width: 480px) {
+    .universe-background::before,
+    .universe-background::after {
+        opacity: 0.7;
+    }
+}
+
+/* Efecto de estrellas orbitales animadas */
+@keyframes twinkle {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+@keyframes orbit1 {
+    0% { transform: translate(-50%, -50%) rotate(0deg) translateX(100px); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translateX(100px); }
+}
+
+@keyframes orbit2 {
+    0% { transform: translate(-50%, -50%) rotate(0deg) translateX(150px); }
+    100% { transform: translate(-50%, -50%) rotate(-360deg) translateX(150px); }
+}
+
+@keyframes orbit3 {
+    0% { transform: translate(-50%, -50%) rotate(0deg) translateX(80px); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translateX(80px); }
 }
