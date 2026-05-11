@@ -158,20 +158,65 @@ function playStarSound(frequency) {
     }
 }
 
+// Crear partículas al hacer click en una estrella
+function createParticles(x, y) {
+    const particleCount = 8;
+    const particles = ['✨', '💫', '⭐', '✨', '💫', '🌟', '✨', '⭐'];
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.textContent = particles[i];
+        
+        const angle = (i / particleCount) * Math.PI * 2;
+        const distance = 100 + Math.random() * 100;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 50;
+        
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        
+        document.body.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 2000);
+    }
+}
+
+// Agregar vibración (haptic feedback) si está disponible
+function triggerHaptic() {
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+}
+
 // Event listeners para las estrellas
 function initializeStars() {
     const stars = document.querySelectorAll('.star');
     
     stars.forEach(star => {
-        star.addEventListener('click', function() {
+        star.addEventListener('click', function(e) {
             const frequency = parseFloat(this.getAttribute('data-note'));
             playStarSound(frequency);
+            triggerHaptic();
+            
+            const rect = this.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            createParticles(centerX, centerY);
         });
         
         star.addEventListener('touchstart', function(e) {
             e.preventDefault();
             const frequency = parseFloat(this.getAttribute('data-note'));
             playStarSound(frequency);
+            triggerHaptic();
+            
+            const rect = this.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            createParticles(centerX, centerY);
         });
     });
 }
