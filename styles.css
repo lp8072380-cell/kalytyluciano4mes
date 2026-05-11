@@ -27,6 +27,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    will-change: auto;
+    transform: translate3d(0, 0, 0);
 }
 
 .stars-container {
@@ -62,9 +64,10 @@ body {
     height: 2px;
     background: white;
     border-radius: 50%;
-    box-shadow: 0 0 6px 1px #fff, 0 0 10px 2px #0ff;
+    box-shadow: 0 0 4px 1px #fff, 0 0 8px 1px #0ff;
     will-change: transform;
     pointer-events: none;
+    transform: translate3d(0, 0, 0);
 }
 
 .shooting-star::after {
@@ -72,16 +75,16 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 3px;
-    height: 180px;
+    width: 2px;
+    height: 120px;
     background: linear-gradient(
         to bottom,
-        rgba(255, 0, 255, 0.6),
-        rgba(0, 255, 255, 0.3),
+        rgba(255, 0, 255, 0.4),
+        rgba(0, 255, 255, 0.2),
         transparent
     );
-    filter: blur(0.5px);
-    transform: translateX(-1px);
+    filter: blur(0.3px);
+    transform: translateX(-0.5px);
 }
 
 /* Contenido principal */
@@ -139,9 +142,11 @@ body {
 .star {
     font-size: 3rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.3));
+    transition: all 0.15s ease;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.3));
     user-select: none;
+    will-change: transform, filter;
+    transform: translate3d(0, 0, 0);
 }
 
 .star:hover {
@@ -156,13 +161,27 @@ body {
 
 @media (max-width: 768px) {
     .star-grid {
-        grid-template-columns: repeat(3, 60px);
-        gap: 20px;
-        padding: 20px;
+        grid-template-columns: repeat(3, 50px);
+        gap: 15px;
+        padding: 15px;
     }
     
     .star {
-        font-size: 2rem;
+        font-size: 1.5rem;
+    }
+    
+    .hours-counter {
+        bottom: 15px;
+        right: 15px;
+        padding: 12px 18px;
+    }
+    
+    .counter-display {
+        font-size: 1.2rem;
+    }
+    
+    .interactive-stars {
+        margin-top: 30px;
     }
 }
 
@@ -243,24 +262,65 @@ body {
 }
 
 @media (max-width: 768px) {
-    .hours-counter {
-        bottom: 20px;
-        right: 20px;
-        padding: 15px 20px;
-    }
-    
-    .counter-display {
-        font-size: 1.8rem;
-    }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
     .title {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        margin-bottom: 15px;
     }
     
     .subtitle {
-        font-size: 1.3rem;
+        font-size: 1rem;
+    }
+    
+    .hours-counter {
+        bottom: 15px;
+        right: 15px;
+        padding: 12px 18px;
+    }
+    
+    .counter-display {
+        font-size: 1.2rem;
+    }
+    
+    .counter-value {
+        font-size: 1.2rem;
+        min-width: 30px;
+    }
+    
+    .counter-unit {
+        font-size: 0.55rem;
+    }
+    
+    .star-grid {
+        grid-template-columns: repeat(3, 50px);
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .star {
+        font-size: 1.5rem;
+    }
+    
+    .interactive-stars {
+        margin-top: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .star-grid {
+        grid-template-columns: repeat(3, 40px);
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .star {
+        font-size: 1.2rem;
+    }
+    
+    .title {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
     }
 }

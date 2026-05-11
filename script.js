@@ -1,6 +1,7 @@
 // Sistema optimizado de estrellas fugaces
 let shootingStarCount = 0;
-const maxShootingStars = 3; // Máximo de estrellas en pantalla simultáneamente
+const isMobile = window.innerWidth <= 768;
+const maxShootingStars = isMobile ? 1 : 2; // Solo 1 en móvil
 
 function createShootingStarWithTrail() {
     // Limitar cantidad de estrellas
@@ -19,7 +20,7 @@ function createShootingStarWithTrail() {
     
     // Ángulo para trayectoria diagonal
     const angle = 30 + Math.random() * 60;
-    const speed = 4 + Math.random() * 3;
+    const speed = isMobile ? 5 + Math.random() * 2 : 4 + Math.random() * 3;
     
     starsContainer.appendChild(shootingStar);
     shootingStarCount++;
@@ -31,7 +32,7 @@ function createShootingStarWithTrail() {
     let x = startX;
     let y = startY;
     let frameCount = 0;
-    const maxFrames = 150;
+    const maxFrames = isMobile ? 100 : 120;
     
     function animate() {
         frameCount++;
@@ -47,7 +48,7 @@ function createShootingStarWithTrail() {
         
         // Usar transform para mejor rendimiento
         const opacity = 1 - (frameCount / maxFrames);
-        shootingStar.style.transform = `translate(${x}px, ${y}px)`;
+        shootingStar.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         shootingStar.style.opacity = opacity;
         
         requestAnimationFrame(animate);
@@ -57,19 +58,28 @@ function createShootingStarWithTrail() {
 }
 
 function startShootingStars() {
-    // Primera lluvia de estrellas al cargar
-    for (let i = 0; i < 2; i++) {
-        setTimeout(() => {
-            createShootingStarWithTrail();
-        }, i * 300);
-    }
-    
-    // Generar estrellas fugaces de manera más espaciada
-    setInterval(() => {
-        if (Math.random() > 0.3 && shootingStarCount < maxShootingStars) {
-            createShootingStarWithTrail();
+    if (isMobile) {
+        // En móvil: generar estrellas cada 4-6 segundos
+        setInterval(() => {
+            if (shootingStarCount < maxShootingStars) {
+                createShootingStarWithTrail();
+            }
+        }, 4000 + Math.random() * 2000);
+    } else {
+        // En desktop: primera lluvia al cargar
+        for (let i = 0; i < 2; i++) {
+            setTimeout(() => {
+                createShootingStarWithTrail();
+            }, i * 300);
         }
-    }, 2000 + Math.random() * 2000); // Cada 2-4 segundos
+        
+        // Generar estrellas cada 2-4 segundos
+        setInterval(() => {
+            if (Math.random() > 0.3 && shootingStarCount < maxShootingStars) {
+                createShootingStarWithTrail();
+            }
+        }, 2000 + Math.random() * 2000);
+    }
 }
 
 // Función para calcular el tiempo transcurrido completo
@@ -100,10 +110,12 @@ function updateFullCounter() {
     if (secondsElement) secondsElement.textContent = remainingSeconds.toString().padStart(2, '0');
 }
 
-// Actualizar el contador cada segundo
+// Actualizar el contador 
 function startFullCounter() {
     updateFullCounter(); // Actualización inicial
-    setInterval(updateFullCounter, 1000); // Actualizar cada segundo
+    // En móvil: actualizar cada 5 segundos, en desktop cada segundo
+    const interval = isMobile ? 5000 : 1000;
+    setInterval(updateFullCounter, interval);
 }
 
 // Sistema de Audio Web API optimizado
