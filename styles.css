@@ -14,10 +14,7 @@ body {
 .universe-background {
     width: 100%;
     height: 100vh;
-    background: radial-gradient(ellipse at 30% 50%, rgba(100, 50, 150, 0.5) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 60%, rgba(50, 100, 200, 0.4) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 30%, rgba(150, 80, 200, 0.3) 0%, transparent 40%),
-                linear-gradient(135deg, #0a0e27 0%, #1a1a4d 20%, #0f3460 50%, #16213e 80%, #0a0e27 100%);
+    background: #000000;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -25,28 +22,13 @@ body {
     justify-content: center;
     will-change: auto;
     transform: translate3d(0, 0, 0);
-    animation: galaxyFlow 60s ease-in-out infinite;
 }
 
 @keyframes galaxyFlow {
-    0% {
-        filter: brightness(0.95) saturate(0.9);
-    }
-    25% {
-        filter: brightness(1) saturate(1);
-    }
-    50% {
-        filter: brightness(1.05) saturate(1.1);
-    }
-    75% {
-        filter: brightness(1) saturate(1);
-    }
-    100% {
-        filter: brightness(0.95) saturate(0.9);
-    }
+    0%, 100% { opacity: 0; }
 }
 
-/* Nebulosa animada superior */
+/* Nebulosa animada superior - DESHABILITADA */
 .universe-background::before {
     content: '';
     position: absolute;
@@ -54,10 +36,11 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(ellipse at center, rgba(200, 100, 255, 0.2), transparent 70%);
-    animation: nebulaRotate 60s linear infinite;
+    background: none;
+    animation: none;
     pointer-events: none;
     z-index: 1;
+    display: none;
 }
 
 @keyframes nebulaRotate {
@@ -69,7 +52,7 @@ body {
     }
 }
 
-/* Nebulosa animada inferior */
+/* Nebulosa animada inferior - DESHABILITADA */
 .universe-background::after {
     content: '';
     position: absolute;
@@ -77,10 +60,11 @@ body {
     right: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(ellipse at center, rgba(0, 150, 255, 0.1), transparent 70%);
-    animation: nebulaRotateReverse 80s linear infinite;
+    background: none;
+    animation: none;
     pointer-events: none;
     z-index: 1;
+    display: none;
 }
 
 @keyframes nebulaRotateReverse {
