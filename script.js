@@ -126,26 +126,42 @@ function startShootingStars() {
     }, 1500 + Math.random() * 1500);
 }
 
-// Función para calcular las horas transcurridas
-function updateHoursCounter() {
+// Función para calcular el tiempo transcurrido completo
+function updateFullCounter() {
     const startDate = new Date('2026-01-14T00:00:00').getTime();
     const currentDate = new Date().getTime();
-    const hoursElapsed = Math.floor((currentDate - startDate) / (1000 * 60 * 60));
+    const totalMilliseconds = currentDate - startDate;
     
-    const hoursDisplay = document.getElementById('hoursDisplay');
-    if (hoursDisplay) {
-        hoursDisplay.textContent = hoursElapsed.toLocaleString('es-ES');
-    }
+    // Calcular días, horas, minutos y segundos
+    const totalSeconds = Math.floor(totalMilliseconds / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const days = Math.floor(totalHours / 24);
+    
+    const remainingHours = totalHours % 24;
+    const remainingMinutes = totalMinutes % 60;
+    const remainingSeconds = totalSeconds % 60;
+    
+    // Actualizar elementos
+    const daysElement = document.getElementById('days');
+    const hoursElement = document.getElementById('hours');
+    const minutesElement = document.getElementById('minutes');
+    const secondsElement = document.getElementById('seconds');
+    
+    if (daysElement) daysElement.textContent = days.toString().padStart(2, '0');
+    if (hoursElement) hoursElement.textContent = remainingHours.toString().padStart(2, '0');
+    if (minutesElement) minutesElement.textContent = remainingMinutes.toString().padStart(2, '0');
+    if (secondsElement) secondsElement.textContent = remainingSeconds.toString().padStart(2, '0');
 }
 
-// Actualizar el contador cada minuto
-function startHoursCounter() {
-    updateHoursCounter(); // Actualización inicial
-    setInterval(updateHoursCounter, 60000); // Actualizar cada minuto
+// Actualizar el contador cada segundo
+function startFullCounter() {
+    updateFullCounter(); // Actualización inicial
+    setInterval(updateFullCounter, 1000); // Actualizar cada segundo
 }
 
 // Iniciar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     startShootingStars();
-    startHoursCounter();
+    startFullCounter();
 });
