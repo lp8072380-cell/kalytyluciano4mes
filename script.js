@@ -1,7 +1,7 @@
 // Sistema optimizado de estrellas fugaces
 let shootingStarCount = 0;
 const isMobile = window.innerWidth <= 768;
-const maxShootingStars = isMobile ? 1 : 2; // Solo 1 en móvil
+const maxShootingStars = isMobile ? 0 : 1; // 0 en móvil
 
 function createShootingStarWithTrail() {
     // Limitar cantidad de estrellas
@@ -160,8 +160,8 @@ function playStarSound(frequency) {
 
 // Crear partículas al hacer click en una estrella
 function createParticles(x, y) {
-    const particleCount = 8;
-    const particles = ['✨', '💫', '⭐', '✨', '💫', '🌟', '✨', '⭐'];
+    const particleCount = 5; // Reducido de 8 a 5
+    const particles = ['✨', '💫', '⭐', '✨', '💫'];
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -169,9 +169,9 @@ function createParticles(x, y) {
         particle.textContent = particles[i];
         
         const angle = (i / particleCount) * Math.PI * 2;
-        const distance = 100 + Math.random() * 100;
+        const distance = 80 + Math.random() * 80; // Reducido
         const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance - 50;
+        const ty = Math.sin(angle) * distance - 40;
         
         particle.style.setProperty('--tx', tx + 'px');
         particle.style.setProperty('--ty', ty + 'px');
@@ -180,7 +180,7 @@ function createParticles(x, y) {
         
         document.body.appendChild(particle);
         
-        setTimeout(() => particle.remove(), 2000);
+        setTimeout(() => particle.remove(), 1500); // Reducido de 2000 a 1500
     }
 }
 
