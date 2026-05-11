@@ -1,0 +1,208 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+.universe-background {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(
+        135deg,
+        #0a0e27 0%,
+        #1a1a4d 25%,
+        #0f3460 50%,
+        #16213e 75%,
+        #0a0e27 100%
+    );
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stars-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* Estrellas estáticas de fondo */
+.stars-container::before,
+.stars-container::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 60px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 50px 50px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 130px 80px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 90px 10px, #fff, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+}
+
+/* Estrellas fugaces - definidas en JavaScript */
+.shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 6px 1px #fff, 0 0 10px 2px #0ff;
+}
+
+.shooting-star::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        transparent,
+        white,
+        transparent
+    );
+    filter: blur(2px);
+    animation: shootingStar 3s linear infinite;
+}
+
+.shooting-star::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 200px;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 0, 255, 0.5),
+        rgba(0, 255, 255, 0.3),
+        transparent
+    );
+    filter: blur(1px);
+    transform: translateX(-1px);
+}
+
+@keyframes shootingStar {
+    0% {
+        transform: scaleX(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+}
+
+/* Contenido principal */
+.content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.title {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+.subtitle {
+    font-size: 1.8rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    color: #a0d8ff;
+    animation: glowPulse 3s ease-in-out infinite 0.5s;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+    }
+}
+
+/* Contador de horas */
+.hours-counter {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(10, 14, 39, 0.8);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 15px;
+    padding: 20px 30px;
+    z-index: 20;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    animation: counterPulse 2s ease-in-out infinite;
+}
+
+.counter-label {
+    font-size: 0.9rem;
+    color: #a0d8ff;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.counter-display {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+@keyframes counterPulse {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(0, 255, 255, 0.6);
+    }
+}
+
+@media (max-width: 768px) {
+    .hours-counter {
+        bottom: 20px;
+        right: 20px;
+        padding: 15px 20px;
+    }
+    
+    .counter-display {
+        font-size: 1.8rem;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1.3rem;
+    }
+}
