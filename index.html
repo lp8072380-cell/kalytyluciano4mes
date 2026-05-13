@@ -16,19 +16,20 @@
             
             <div class="interactive-stars">
                 <div class="star-grid">
-                    <div class="star" data-note="261.63" data-index="0">⭐</div>
-                    <div class="star" data-note="293.66" data-index="1">⭐</div>
-                    <div class="star" data-note="329.63" data-index="2">⭐</div>
+                    <button class="star" type="button" data-note="261.63" data-index="0" data-message="Desde que llegaste, todo brilla muchísimo más." data-frog-line="¿Un piquito más? Muchísimo más jeje." aria-label="Estrella 1">⭐</button>
+                    <button class="star" type="button" data-note="293.66" data-index="1" data-message="Gracias por estos 4 meses tan nuestros." aria-label="Estrella 2">⭐</button>
+                    <button class="star" type="button" data-note="329.63" data-index="2" data-message="Me gusta coincidir con vos en este universo enorme." aria-label="Estrella 3">⭐</button>
                     
-                    <div class="star" data-note="349.23" data-index="3">⭐</div>
-                    <div class="star" data-note="392.00" data-index="4">⭐</div>
-                    <div class="star" data-note="440.00" data-index="5">⭐</div>
+                    <button class="star" type="button" data-note="349.23" data-index="3" data-message="Tu risa es mi constelación favorita." aria-label="Estrella 4">⭐</button>
+                    <button class="star" type="button" data-note="392.00" data-index="4" data-message="Cada día juntos suma una historia preciosa." aria-label="Estrella 5">⭐</button>
+                    <button class="star" type="button" data-note="440.00" data-index="5" data-message="Con vos, hasta lo simple se siente especial." aria-label="Estrella 6">⭐</button>
                     
-                    <div class="star" data-note="493.88" data-index="6">⭐</div>
-                    <div class="star" data-note="523.25" data-index="7">⭐</div>
-                    <div class="star" data-note="587.33" data-index="8">⭐</div>
+                    <button class="star" type="button" data-note="493.88" data-index="6" data-message="Quiero seguir descubriendo mundos con vos." aria-label="Estrella 7">⭐</button>
+                    <button class="star" type="button" data-note="523.25" data-index="7" data-message="Sos mi lugar bonito entre tantas estrellas." aria-label="Estrella 8">⭐</button>
+                    <button class="star" type="button" data-note="587.33" data-index="8" data-message="Felices 4 meses, amor." aria-label="Estrella 9">⭐</button>
                 </div>
             </div>
+            <p class="star-message" id="starMessage" aria-live="polite">Cada estrella guarda un pedacito de nosotros.</p>
         </div>
 
         <div class="hours-counter">
@@ -41,6 +42,43 @@
                 <span class="counter-item"><span class="counter-value" id="minutes">0</span><span class="counter-unit">M</span></span>
                 <span class="counter-separator">:</span>
                 <span class="counter-item"><span class="counter-value" id="seconds">0</span><span class="counter-unit">S</span></span>
+            </div>
+        </div>
+
+        <!-- Sapito Container -->
+        <div class="sapito-container">
+            <div class="sapito-bubble" id="sapitoBubble" aria-live="polite">croac de amor 🐸</div>
+            <button class="sapito" id="sapito" type="button" aria-label="Tocar sapito">
+                <span class="sapito-eye sapito-eye-left"></span>
+                <span class="sapito-eye sapito-eye-right"></span>
+                <span class="sapito-cheek sapito-cheek-left"></span>
+                <span class="sapito-cheek sapito-cheek-right"></span>
+                <span class="sapito-smile"></span>
+                <span class="sapito-heart">♥</span>
+            </button>
+        </div>
+
+        <!-- Particles Container -->
+        <div class="particles"></div>
+
+        <div class="sapito-window" id="sapitoWindow" aria-hidden="true">
+            <div class="sapito-window-panel" role="dialog" aria-modal="true" aria-labelledby="sapitoWindowTitle">
+                <button class="sapito-close" id="sapitoClose" type="button" aria-label="Cerrar mini IA">×</button>
+                <div class="sapito-window-header">
+                    <div class="sapito-avatar">🐸</div>
+                    <div>
+                        <h2 id="sapitoWindowTitle">Mini IA Sapito</h2>
+                        <p>Hecha con amor de Luciano para Kalyt</p>
+                    </div>
+                </div>
+                <div class="sapito-chat" id="sapitoChat" aria-live="polite">
+                    <div class="chat-message frog-message">Hola Kalyt, ¿eres Kalyt verdad?</div>
+                    <div class="chat-message frog-message">Soy el sapito guardián de Luciano. Vengo cargado de croacs, estrellas y amor.</div>
+                </div>
+                <form class="sapito-form" id="sapitoForm">
+                    <input id="sapitoInput" type="text" autocomplete="off" placeholder="Pregúntale algo al sapito...">
+                    <button type="submit">Enviar</button>
+                </form>
             </div>
         </div>
     </div>
