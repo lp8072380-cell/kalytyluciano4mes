@@ -594,6 +594,29 @@ body {
     box-shadow: inset 0 0 0 1px rgba(0, 255, 255, 0.2);
 }
 
+.sapito-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sapito-suggestions button {
+    min-height: 34px;
+    border: 1px solid rgba(160, 216, 255, 0.24);
+    border-radius: 999px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sapito-suggestions button:hover {
+    background: rgba(93, 242, 127, 0.16);
+    border-color: rgba(93, 242, 127, 0.42);
+}
+
 .sapito-form {
     display: flex;
     gap: 8px;

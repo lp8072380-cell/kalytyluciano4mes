@@ -26,6 +26,7 @@ const DOM = {
     sapitoChat: document.getElementById('sapitoChat'),
     sapitoForm: document.getElementById('sapitoForm'),
     sapitoInput: document.getElementById('sapitoInput'),
+    sapitoSuggestions: document.querySelectorAll('.sapito-suggestions button'),
 };
 
 // Sistema optimizado de estrellas fugaces
@@ -125,6 +126,7 @@ let audioContext = null;
 const frogAudio = new Audio('assets/sounds/pigfrog-evergladesnp.ogg');
 frogAudio.preload = 'auto';
 frogAudio.volume = 0.85;
+const SAPITO_AI_NAME = 'Lunacroac';
 
 function initAudioContext() {
     if (!audioContext) {
@@ -229,7 +231,7 @@ function openSapitoWindow() {
 
     DOM.sapitoWindow.classList.add('is-open');
     DOM.sapitoWindow.setAttribute('aria-hidden', 'false');
-    setFrogSpeech('Hola Kalyt, ¿eres Kalyt verdad?');
+    setFrogSpeech(`Hola, soy ${SAPITO_AI_NAME}. ¿Eres Kalyt verdad?`);
     window.setTimeout(() => DOM.sapitoInput?.focus(), 120);
 }
 
@@ -240,38 +242,127 @@ function closeSapitoWindow() {
     DOM.sapitoWindow.setAttribute('aria-hidden', 'true');
 }
 
-const sapitoReplies = [
-    'Luciano dice que Kalyt no es una estrella: es el cielo completo.',
-    'Mi análisis sapito confirma amor extremo, ternura alta y ganas infinitas de cuidarte.',
-    'Si Luciano pudiera guardar un momento, guardaría todos los que tiene con vos.',
-    'Croac traducción: Luciano te ama muchísimo, muchísimo, muchísimo más.',
-    'Kalyt, sos el mensajito bonito que Luciano quiere leer todos los días.',
-];
+const sapitoMemory = {
+    interactions: 0,
+    lastTopic: 'saludo',
+};
+
+const sapitoReplies = {
+    saludo: [
+        `Hola Kalyt, ¿eres Kalyt verdad? Soy ${SAPITO_AI_NAME}, tu sapito lunar con licencia para hablar bonito.`,
+        `Croac, Kalyt detectada. ${SAPITO_AI_NAME} entrando en modo ternura.`,
+    ],
+    identidad: [
+        `Me llamo ${SAPITO_AI_NAME}: mitad luna, mitad croac, cien por ciento enviado por Luciano.`,
+        `Soy ${SAPITO_AI_NAME}, una mini IA sapito que vive entre estrellas para recordarte cuánto te quiere Luciano.`,
+    ],
+    luciano: [
+        'Luciano está modo corazón gigante: piensa en vos, te presume en secreto y me programó para recordarte que te ama.',
+        'Luciano no te quiere poquito: te quiere con plan de quedarse, cuidarte y hacerte sonreír hasta en días raros.',
+        'Si Luciano pudiera ponerle nombre a su lugar favorito, probablemente sería Kalyt.',
+    ],
+    kalyt: [
+        'Kalyt detectada. Nivel de ternura: altísimo. Nivel de amor de Luciano: fuera de la galaxia.',
+        'Kalyt, sos el mensajito bonito que Luciano quiere leer todos los días.',
+        'Según mis cálculos de sapito lunar, Kalyt hace que todo brille más bonito.',
+    ],
+    amor: [
+        'Respuesta oficial de Lunacroac: sí, Luciano te ama con todo su corazoncito y un croac extra.',
+        'Luciano dice que Kalyt no es una estrella: es el cielo completo.',
+        'Croac traducción: Luciano te ama muchísimo, muchísimo, muchísimo más.',
+    ],
+    ternura: [
+        'Mensaje tierno: Luciano te mira como quien encontró una constelación que no quiere perder.',
+        'Si hoy necesitás una señal bonita, acá va: Luciano elegiría coincidir con vos otra vez.',
+        'Ternura activada: sos ese pedacito de universo donde Luciano se queda tranquilo.',
+    ],
+    risa: [
+        'Chiste sapito: Luciano me pidió ser serio, pero yo dije croac... y se me cayó la dignidad al charquito.',
+        'Dato científico inventado: cada vez que Kalyt sonríe, un sapito aprende a bailar en la luna.',
+        'Modo gracioso: no soy celoso, pero si una estrella mira mucho a Kalyt, le hago croac de advertencia.',
+    ],
+    estrellas: [
+        'Las estrellas hacen ruido bajito cuando Kalyt aparece. No lo digo yo, lo dice mi antenita lunar.',
+        'El universo es enorme, pero Luciano igual encontró su rincón favorito: vos.',
+        'Si una estrella cae hoy, seguro viene a pedirle consejos a Kalyt para brillar así.',
+    ],
+    animo: [
+        'Si hoy estás bajita, Lunacroac se sienta cerquita: Luciano te quiere incluso en tus días nublados.',
+        'Respirá, Kalyt. No tenés que brillar todo el tiempo para que Luciano te mire con amor.',
+        'Croac suavecito: sos querida, sos importante y Luciano está feliz de tenerte.',
+    ],
+    poquito: [
+        '¿Un poquito más? Muchísimo más jeje. Luciano no sabe amar poquito cuando se trata de Kalyt.',
+        'Poquito dice... pero el corazón de Luciano escuchó “muchísimo, con repetición y croac incluido”.',
+    ],
+    default: [
+        'Estoy pensando con mi cerebro de charquito lunar... y mi conclusión es que Luciano te quiere demasiado bonito.',
+        'No sé todo del universo, pero sí sé esto: Luciano y Kalyt suenan como una historia preciosa.',
+        'Lunacroac responde: si tiene que ver con amor, Luciano ya está levantando la mano por Kalyt.',
+    ],
+};
+
+function normalizeText(input) {
+    return input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function chooseReply(topic) {
+    const replies = sapitoReplies[topic] || sapitoReplies.default;
+    const reply = replies[sapitoMemory.interactions % replies.length];
+    sapitoMemory.interactions++;
+    sapitoMemory.lastTopic = topic;
+
+    if (sapitoMemory.interactions > 2 && sapitoMemory.interactions % 4 === 0) {
+        return `${reply} Ya guardé ${sapitoMemory.interactions} croacs de esta charla en mi lunita.`;
+    }
+
+    return reply;
+}
 
 function getSapitoReply(input) {
-    const text = input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const text = normalizeText(input);
 
     if (text.includes('hola')) {
-        return 'Hola Kalyt, ¿eres Kalyt verdad? Porque Luciano me habló de alguien preciosa y todo apunta a vos.';
+        return chooseReply('saludo');
+    }
+
+    if (text.includes('quien eres') || text.includes('como te llamas') || text.includes('nombre')) {
+        return chooseReply('identidad');
     }
 
     if (text.includes('luciano')) {
-        return 'Luciano está modo corazón gigante: piensa en vos, te presume en secreto y me programó para recordarte que te ama.';
+        return chooseReply('luciano');
     }
 
     if (text.includes('amor') || text.includes('ama') || text.includes('quier')) {
-        return 'Respuesta oficial del sapito: sí, Luciano te ama con todo su corazoncito y un croac extra.';
+        return chooseReply('amor');
     }
 
     if (text.includes('poquito') || text.includes('muchisimo')) {
-        return '¿Un poquito más? Muchísimo más jeje. Luciano no sabe amar poquito cuando se trata de Kalyt.';
+        return chooseReply('poquito');
     }
 
     if (text.includes('kalyt')) {
-        return 'Kalyt detectada. Nivel de ternura: altísimo. Nivel de amor de Luciano: fuera de la galaxia.';
+        return chooseReply('kalyt');
     }
 
-    return sapitoReplies[Math.floor(Math.random() * sapitoReplies.length)];
+    if (text.includes('tierno') || text.includes('bonito') || text.includes('lindo')) {
+        return chooseReply('ternura');
+    }
+
+    if (text.includes('risa') || text.includes('gracioso') || text.includes('chiste') || text.includes('reir')) {
+        return chooseReply('risa');
+    }
+
+    if (text.includes('estrella') || text.includes('luna') || text.includes('universo') || text.includes('galaxia')) {
+        return chooseReply('estrellas');
+    }
+
+    if (text.includes('triste') || text.includes('mal') || text.includes('llorar') || text.includes('extraño')) {
+        return chooseReply('animo');
+    }
+
+    return chooseReply('default');
 }
 
 let messageTimeout = null;
@@ -356,6 +447,21 @@ function initializeStars() {
     });
 }
 
+function handleSapitoQuestion(question) {
+    addChatMessage(question, 'user');
+    if (DOM.sapitoInput) {
+        DOM.sapitoInput.value = '';
+    }
+
+    window.setTimeout(() => {
+        const reply = getSapitoReply(question);
+        addChatMessage(reply, 'frog');
+        setFrogSpeech(reply);
+        playFrogSound();
+        animateSapito();
+    }, 280);
+}
+
 function initializeSapito() {
     if (!DOM.sapito) return;
 
@@ -366,7 +472,7 @@ function initializeSapito() {
         triggerHaptic();
 
         if (sapitoTouches === 1) {
-            setFrogSpeech('Croac. Tengo una mini IA escondida para Kalyt.');
+            setFrogSpeech(`${SAPITO_AI_NAME} despierto. Tengo amor lunar para Kalyt.`);
             return;
         }
 
@@ -392,18 +498,16 @@ function initializeSapito() {
         const question = DOM.sapitoInput?.value.trim();
         if (!question) return;
 
-        addChatMessage(question, 'user');
-        if (DOM.sapitoInput) {
-            DOM.sapitoInput.value = '';
-        }
+        handleSapitoQuestion(question);
+    });
 
-        window.setTimeout(() => {
-            const reply = getSapitoReply(question);
-            addChatMessage(reply, 'frog');
-            setFrogSpeech(reply);
-            playFrogSound();
-            animateSapito();
-        }, 280);
+    DOM.sapitoSuggestions.forEach(button => {
+        button.addEventListener('click', () => {
+            const question = button.dataset.question;
+            if (question) {
+                handleSapitoQuestion(question);
+            }
+        });
     });
 }
 
