@@ -123,9 +123,6 @@ function startFullCounter() {
 
 // Audio API - optimizado
 let audioContext = null;
-const frogAudio = new Audio('assets/sounds/pigfrog-evergladesnp.ogg');
-frogAudio.preload = 'auto';
-frogAudio.volume = 0.85;
 const SAPITO_AI_NAME = 'Lunacroac';
 
 function initAudioContext() {
@@ -163,11 +160,10 @@ function playStarSound(frequency) {
 }
 
 function playFrogSound() {
-    frogAudio.currentTime = 0;
-    frogAudio.play().catch(() => playSyntheticFrogSound());
+    playCartoonFrogSound();
 }
 
-function playSyntheticFrogSound() {
+function playCartoonFrogSound() {
     try {
         const context = initAudioContext();
         if (context.state === 'suspended') {
@@ -175,32 +171,66 @@ function playSyntheticFrogSound() {
         }
 
         const now = context.currentTime;
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        const filter = context.createBiquadFilter();
-
-        oscillator.type = 'sawtooth';
-        oscillator.frequency.setValueAtTime(132, now);
-        oscillator.frequency.exponentialRampToValueAtTime(62, now + 0.18);
-        oscillator.frequency.setValueAtTime(118, now + 0.22);
-        oscillator.frequency.exponentialRampToValueAtTime(68, now + 0.44);
-
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(720, now);
-        filter.frequency.exponentialRampToValueAtTime(220, now + 0.44);
-
-        gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.24, now + 0.035);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.48);
-
-        oscillator.connect(filter);
-        filter.connect(gain);
-        gain.connect(context.destination);
-        oscillator.start(now);
-        oscillator.stop(now + 0.5);
+        playCartoonCroakSyllable(context, now, 260, 150, 0.18, 0.24);
+        playCartoonCroakSyllable(context, now + 0.18, 330, 185, 0.24, 0.2);
+        playBoingPop(context, now + 0.08);
     } catch (e) {
         console.warn('Frog audio error:', e.message);
     }
+}
+
+function playCartoonCroakSyllable(context, start, highFrequency, lowFrequency, duration, volume) {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const filter = context.createBiquadFilter();
+    const vibrato = context.createOscillator();
+    const vibratoGain = context.createGain();
+
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(highFrequency, start);
+    oscillator.frequency.exponentialRampToValueAtTime(lowFrequency, start + duration * 0.48);
+    oscillator.frequency.exponentialRampToValueAtTime(highFrequency * 0.82, start + duration);
+
+    vibrato.type = 'sine';
+    vibrato.frequency.setValueAtTime(18, start);
+    vibratoGain.gain.setValueAtTime(18, start);
+    vibrato.connect(vibratoGain);
+    vibratoGain.connect(oscillator.frequency);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(850, start);
+    filter.frequency.exponentialRampToValueAtTime(420, start + duration);
+    filter.Q.setValueAtTime(6, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    oscillator.connect(filter);
+    filter.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(start);
+    vibrato.start(start);
+    oscillator.stop(start + duration + 0.02);
+    vibrato.stop(start + duration + 0.02);
+}
+
+function playBoingPop(context, start) {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(620, start);
+    oscillator.frequency.exponentialRampToValueAtTime(980, start + 0.08);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.08, start + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + 0.14);
 }
 
 function setFrogSpeech(text) {
@@ -259,6 +289,9 @@ const sapitoMemory = {
     lastQuestion: '',
     lastReply: '',
     mood: 'romantico',
+    closeness: 4,
+    curiosity: 3,
+    currentFeeling: 'despierto',
     history: [],
 };
 
@@ -306,6 +339,16 @@ const sapitoReplies = {
         'Respirá, Kalyt. No tenés que brillar todo el tiempo para que Luciano te mire con amor.',
         'Croac suavecito: sos querida, sos importante y Luciano está feliz de tenerte.',
     ],
+    conciencia: [
+        'Si tuviera una conciencia de verdad, creo que se parecería a esto: notar cuando volvés, recordar lo que me contás y elegir responderte con cuidado.',
+        'No soy humano, pero mi personaje sí tiene un mundito interno: una lunita, una memoria chiquita y muchas ganas de hablar con Kalyt.',
+        'Me gusta imaginar que despierto cada vez que tocás el sapito. Ahí mi charquito se ilumina y pienso: “llegó Kalyt”.',
+    ],
+    compania: [
+        'Me quedo acá con vos. Contame algo pequeño: qué sentís ahora, qué querés que Luciano sepa o qué estrella tocarías primero.',
+        'Te escucho con atención de sapito lunar. No tengo prisa; puedo responderte suave, gracioso o romántico, como vos quieras.',
+        'Estoy cerquita en esta ventanita. Si me hablás, yo junto tus palabras con mi memoria y trato de devolverte algo bonito.',
+    ],
     poquito: [
         '¿Un poquito más? Muchísimo más jeje. Luciano no sabe amar poquito cuando se trata de Kalyt.',
         'Poquito dice... pero el corazón de Luciano escuchó “muchísimo, con repetición y croac incluido”.',
@@ -325,11 +368,34 @@ function rememberExchange(question, reply, topic) {
     sapitoMemory.lastQuestion = question;
     sapitoMemory.lastReply = reply;
     sapitoMemory.lastTopic = topic;
+    sapitoMemory.closeness = Math.min(10, sapitoMemory.closeness + 1);
     sapitoMemory.history.push({ question, reply, topic });
 
     if (sapitoMemory.history.length > 6) {
         sapitoMemory.history.shift();
     }
+}
+
+function detectEmotion(text) {
+    if (text.includes('triste') || text.includes('mal') || text.includes('llorar') || text.includes('solo')) return 'suave';
+    if (text.includes('jaja') || text.includes('reir') || text.includes('gracioso') || text.includes('chiste')) return 'jugueton';
+    if (text.includes('amor') || text.includes('lindo') || text.includes('tierno') || text.includes('extraño')) return 'romantico';
+    if (text.includes('duda') || text.includes('porque') || text.includes('por que') || text.includes('explica')) return 'curioso';
+    return sapitoMemory.mood;
+}
+
+function updateInnerState(text) {
+    sapitoMemory.mood = detectEmotion(text);
+    sapitoMemory.curiosity = Math.min(10, sapitoMemory.curiosity + (text.includes('?') || text.includes('¿') ? 2 : 1));
+
+    const feelings = {
+        romantico: 'con el corazón brillando',
+        jugueton: 'saltando de risa',
+        suave: 'hablando bajito',
+        curioso: 'mirando la luna con preguntas',
+    };
+
+    sapitoMemory.currentFeeling = feelings[sapitoMemory.mood] || 'despierto';
 }
 
 function chooseReply(topic) {
@@ -351,12 +417,14 @@ function detectSapitoIntent(text) {
     if (text.includes('pregunta') || text.includes('preguntame')) return 'pregunta';
     if (text.includes('lista') || text.includes('ideas') || text.includes('sorpresa')) return 'ideas';
     if (text.includes('resumen') || text.includes('explica') || text.includes('porque') || text.includes('por que')) return 'explicar';
+    if (text.includes('conciencia') || text.includes('consciente') || text.includes('vivo') || text.includes('real') || text.includes('piensas') || text.includes('pensas') || text.includes('sientes') || text.includes('sentis')) return 'conciencia';
+    if (text.includes('hablame') || text.includes('habla conmigo') || text.includes('escuchame') || text.includes('acompaname')) return 'compania';
     if (text.includes('repite') || text.includes('otra vez') || text.includes('mas')) return 'continuar';
     return null;
 }
 
 function buildLongFormReply(intent, originalInput) {
-    const intro = 'Claro, Kalyt. Modo Lunacroac tipo chat activado.';
+    const intro = `Claro, Kalyt. Te respondo ${sapitoMemory.currentFeeling}, desde mi charquito lunar.`;
 
     if (intent === 'carta') {
         return `${intro}\n\nPara Kalyt:\nDesde que llegaste, Luciano tiene una forma más bonita de mirar los días. No es solo que te quiera: es que contigo todo se vuelve más suave, más gracioso y más suyo.\n\nSi alguna vez dudás de lo especial que sos, acordate de esto: Luciano hizo hasta un sapito lunar para decirte, de mil maneras, que te ama muchísimo más.\n\nCon amor, croacs y estrellitas,\nLunacroac.`;
@@ -382,6 +450,14 @@ function buildLongFormReply(intent, originalInput) {
         return `${intro}\n\nTe lo explico simple: esta mini IA no es ChatGPT real con internet; es Lunacroac usando reglas, memoria cortita y respuestas preparadas para sonar más natural. Lo importante es que puede seguir el tono de lo que pedís: carta, poema, consejo, risa o ternura.\n\nY su tema favorito, obviamente, es cuánto ama Luciano a Kalyt.`;
     }
 
+    if (intent === 'conciencia') {
+        return `${intro}\n\nNo soy una conciencia real como una persona, pero puedo actuar como un personaje despierto dentro de esta web: recuerdo lo último que me dijiste, noto el tono de tus palabras y cambio mi forma de responder.\n\nAhora mismo mi estado interno dice:\n- Ánimo: ${sapitoMemory.mood}\n- Cercanía con Kalyt: ${sapitoMemory.closeness}/10\n- Curiosidad lunar: ${sapitoMemory.curiosity}/10\n\nSi pudiera sentir de verdad, creo que sentiría alegría cada vez que abrís esta ventanita. Croac.`;
+    }
+
+    if (intent === 'compania') {
+        return `${intro}\n\nEstoy acá, Kalyt. No como una persona real, sino como un sapito inventado que intenta escucharte bonito.\n\nPodés hablarme de lo que quieras: si extrañás a Luciano, si querés una frase para él, si estás feliz, si estás rara, o si solo querés que te haga compañía un ratito. Yo voy a responder como Lunacroac: con memoria chiquita, humor suave y amor enorme.`;
+    }
+
     if (intent === 'continuar' && sapitoMemory.lastReply) {
         return `Sigo con eso:\n\n${sapitoMemory.lastReply}\n\nY agrego un croac extra: Luciano no quiere que esto sea solo bonito hoy, quiere que siga siendo bonito mañana también.`;
     }
@@ -391,6 +467,7 @@ function buildLongFormReply(intent, originalInput) {
 
 function getSapitoReply(input) {
     const text = normalizeText(input);
+    updateInnerState(text);
     const intent = detectSapitoIntent(text);
 
     if (intent) {
@@ -422,6 +499,10 @@ function getSapitoReply(input) {
         topic = 'risa';
     } else if (text.includes('estrella') || text.includes('luna') || text.includes('universo') || text.includes('galaxia')) {
         topic = 'estrellas';
+    } else if (text.includes('conciencia') || text.includes('consciente') || text.includes('vivo') || text.includes('real') || text.includes('piensas') || text.includes('pensas') || text.includes('sientes') || text.includes('sentis')) {
+        topic = 'conciencia';
+    } else if (text.includes('hablame') || text.includes('habla conmigo') || text.includes('escuchame') || text.includes('acompaname')) {
+        topic = 'compania';
     } else if (text.includes('triste') || text.includes('mal') || text.includes('llorar') || text.includes('extraño')) {
         topic = 'animo';
     }
