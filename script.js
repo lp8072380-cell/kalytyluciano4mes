@@ -226,6 +226,17 @@ function addChatMessage(text, type = 'frog') {
     DOM.sapitoChat.scrollTop = DOM.sapitoChat.scrollHeight;
 }
 
+function showTypingIndicator() {
+    if (!DOM.sapitoChat) return null;
+
+    const message = document.createElement('div');
+    message.classList.add('chat-message', 'frog-message', 'typing-message');
+    message.textContent = `${SAPITO_AI_NAME} está pensando...`;
+    DOM.sapitoChat.appendChild(message);
+    DOM.sapitoChat.scrollTop = DOM.sapitoChat.scrollHeight;
+    return message;
+}
+
 function openSapitoWindow() {
     if (!DOM.sapitoWindow) return;
 
@@ -245,6 +256,10 @@ function closeSapitoWindow() {
 const sapitoMemory = {
     interactions: 0,
     lastTopic: 'saludo',
+    lastQuestion: '',
+    lastReply: '',
+    mood: 'romantico',
+    history: [],
 };
 
 const sapitoReplies = {
@@ -306,11 +321,21 @@ function normalizeText(input) {
     return input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+function rememberExchange(question, reply, topic) {
+    sapitoMemory.lastQuestion = question;
+    sapitoMemory.lastReply = reply;
+    sapitoMemory.lastTopic = topic;
+    sapitoMemory.history.push({ question, reply, topic });
+
+    if (sapitoMemory.history.length > 6) {
+        sapitoMemory.history.shift();
+    }
+}
+
 function chooseReply(topic) {
     const replies = sapitoReplies[topic] || sapitoReplies.default;
     const reply = replies[sapitoMemory.interactions % replies.length];
     sapitoMemory.interactions++;
-    sapitoMemory.lastTopic = topic;
 
     if (sapitoMemory.interactions > 2 && sapitoMemory.interactions % 4 === 0) {
         return `${reply} Ya guardé ${sapitoMemory.interactions} croacs de esta charla en mi lunita.`;
@@ -319,50 +344,91 @@ function chooseReply(topic) {
     return reply;
 }
 
+function detectSapitoIntent(text) {
+    if (text.includes('carta') || text.includes('mensaje largo') || text.includes('dedicatoria')) return 'carta';
+    if (text.includes('poema') || text.includes('verso') || text.includes('rima')) return 'poema';
+    if (text.includes('consejo') || text.includes('ayuda') || text.includes('que hago')) return 'consejo';
+    if (text.includes('pregunta') || text.includes('preguntame')) return 'pregunta';
+    if (text.includes('lista') || text.includes('ideas') || text.includes('sorpresa')) return 'ideas';
+    if (text.includes('resumen') || text.includes('explica') || text.includes('porque') || text.includes('por que')) return 'explicar';
+    if (text.includes('repite') || text.includes('otra vez') || text.includes('mas')) return 'continuar';
+    return null;
+}
+
+function buildLongFormReply(intent, originalInput) {
+    const intro = 'Claro, Kalyt. Modo Lunacroac tipo chat activado.';
+
+    if (intent === 'carta') {
+        return `${intro}\n\nPara Kalyt:\nDesde que llegaste, Luciano tiene una forma más bonita de mirar los días. No es solo que te quiera: es que contigo todo se vuelve más suave, más gracioso y más suyo.\n\nSi alguna vez dudás de lo especial que sos, acordate de esto: Luciano hizo hasta un sapito lunar para decirte, de mil maneras, que te ama muchísimo más.\n\nCon amor, croacs y estrellitas,\nLunacroac.`;
+    }
+
+    if (intent === 'poema') {
+        return `Kalyt, lunita en el cielo,\nLuciano te mira y sonríe,\nsi el mundo se pone feo,\ntu nombre bonito lo guía.\n\nNo es poquito, no es normal,\nes amor con brillo espacial.`;
+    }
+
+    if (intent === 'consejo') {
+        return `${intro}\n\nMi consejo bonito: no midas el amor solo por palabras enormes. Miralo en los detalles: en quien se queda, en quien intenta, en quien quiere hacerte reír aunque sea con un sapito medio dramático.\n\nY de Luciano para vos: dejate querer tranquila, porque su cariño viene con ganas de cuidarte.`;
+    }
+
+    if (intent === 'pregunta') {
+        return 'Pregunta tierna para Kalyt: si pudieras guardar un momento con Luciano en una estrellita, ¿cuál guardarías y por qué?';
+    }
+
+    if (intent === 'ideas') {
+        return `Ideas de Lunacroac para una sorpresa:\n1. Una notita que diga “un poquito más no: muchísimo más”.\n2. Una foto de ustedes con una frase cortita.\n3. Una mini playlist para escuchar juntos.\n4. Un mensaje a medianoche diciendo algo simple pero real.\n5. Tocar una estrella de esta web y dejar que el sapito haga su show.`;
+    }
+
+    if (intent === 'explicar') {
+        return `${intro}\n\nTe lo explico simple: esta mini IA no es ChatGPT real con internet; es Lunacroac usando reglas, memoria cortita y respuestas preparadas para sonar más natural. Lo importante es que puede seguir el tono de lo que pedís: carta, poema, consejo, risa o ternura.\n\nY su tema favorito, obviamente, es cuánto ama Luciano a Kalyt.`;
+    }
+
+    if (intent === 'continuar' && sapitoMemory.lastReply) {
+        return `Sigo con eso:\n\n${sapitoMemory.lastReply}\n\nY agrego un croac extra: Luciano no quiere que esto sea solo bonito hoy, quiere que siga siendo bonito mañana también.`;
+    }
+
+    return null;
+}
+
 function getSapitoReply(input) {
     const text = normalizeText(input);
+    const intent = detectSapitoIntent(text);
+
+    if (intent) {
+        const reply = buildLongFormReply(intent, input);
+        if (reply) {
+            sapitoMemory.interactions++;
+            rememberExchange(input, reply, intent);
+            return reply;
+        }
+    }
+
+    let topic = 'default';
 
     if (text.includes('hola')) {
-        return chooseReply('saludo');
+        topic = 'saludo';
+    } else if (text.includes('quien eres') || text.includes('como te llamas') || text.includes('nombre')) {
+        topic = 'identidad';
+    } else if (text.includes('luciano')) {
+        topic = 'luciano';
+    } else if (text.includes('amor') || text.includes('ama') || text.includes('quier')) {
+        topic = 'amor';
+    } else if (text.includes('poquito') || text.includes('muchisimo')) {
+        topic = 'poquito';
+    } else if (text.includes('kalyt')) {
+        topic = 'kalyt';
+    } else if (text.includes('tierno') || text.includes('bonito') || text.includes('lindo')) {
+        topic = 'ternura';
+    } else if (text.includes('risa') || text.includes('gracioso') || text.includes('chiste') || text.includes('reir')) {
+        topic = 'risa';
+    } else if (text.includes('estrella') || text.includes('luna') || text.includes('universo') || text.includes('galaxia')) {
+        topic = 'estrellas';
+    } else if (text.includes('triste') || text.includes('mal') || text.includes('llorar') || text.includes('extraño')) {
+        topic = 'animo';
     }
 
-    if (text.includes('quien eres') || text.includes('como te llamas') || text.includes('nombre')) {
-        return chooseReply('identidad');
-    }
-
-    if (text.includes('luciano')) {
-        return chooseReply('luciano');
-    }
-
-    if (text.includes('amor') || text.includes('ama') || text.includes('quier')) {
-        return chooseReply('amor');
-    }
-
-    if (text.includes('poquito') || text.includes('muchisimo')) {
-        return chooseReply('poquito');
-    }
-
-    if (text.includes('kalyt')) {
-        return chooseReply('kalyt');
-    }
-
-    if (text.includes('tierno') || text.includes('bonito') || text.includes('lindo')) {
-        return chooseReply('ternura');
-    }
-
-    if (text.includes('risa') || text.includes('gracioso') || text.includes('chiste') || text.includes('reir')) {
-        return chooseReply('risa');
-    }
-
-    if (text.includes('estrella') || text.includes('luna') || text.includes('universo') || text.includes('galaxia')) {
-        return chooseReply('estrellas');
-    }
-
-    if (text.includes('triste') || text.includes('mal') || text.includes('llorar') || text.includes('extraño')) {
-        return chooseReply('animo');
-    }
-
-    return chooseReply('default');
+    const reply = chooseReply(topic);
+    rememberExchange(input, reply, topic);
+    return reply;
 }
 
 let messageTimeout = null;
@@ -453,13 +519,17 @@ function handleSapitoQuestion(question) {
         DOM.sapitoInput.value = '';
     }
 
+    const typingMessage = showTypingIndicator();
+    const thinkingTime = Math.min(950, 360 + question.length * 12);
+
     window.setTimeout(() => {
+        typingMessage?.remove();
         const reply = getSapitoReply(question);
         addChatMessage(reply, 'frog');
         setFrogSpeech(reply);
         playFrogSound();
         animateSapito();
-    }, 280);
+    }, thinkingTime);
 }
 
 function initializeSapito() {
