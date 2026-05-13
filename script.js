@@ -122,6 +122,9 @@ function startFullCounter() {
 
 // Audio API - optimizado
 let audioContext = null;
+const frogAudio = new Audio('assets/sounds/pigfrog-evergladesnp.ogg');
+frogAudio.preload = 'auto';
+frogAudio.volume = 0.85;
 
 function initAudioContext() {
     if (!audioContext) {
@@ -158,6 +161,11 @@ function playStarSound(frequency) {
 }
 
 function playFrogSound() {
+    frogAudio.currentTime = 0;
+    frogAudio.play().catch(() => playSyntheticFrogSound());
+}
+
+function playSyntheticFrogSound() {
     try {
         const context = initAudioContext();
         if (context.state === 'suspended') {
@@ -255,8 +263,8 @@ function getSapitoReply(input) {
         return 'Respuesta oficial del sapito: sí, Luciano te ama con todo su corazoncito y un croac extra.';
     }
 
-    if (text.includes('piquito') || text.includes('poquito') || text.includes('muchisimo')) {
-        return '¿Un piquito más? Muchísimo más jeje. Luciano no sabe amar poquito cuando se trata de Kalyt.';
+    if (text.includes('poquito') || text.includes('muchisimo')) {
+        return '¿Un poquito más? Muchísimo más jeje. Luciano no sabe amar poquito cuando se trata de Kalyt.';
     }
 
     if (text.includes('kalyt')) {
